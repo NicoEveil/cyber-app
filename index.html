@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk - Suivi de combat</title>
+  <link rel="manifest" href="manifest.json">
+
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+  font-family: 'Rajdhani', Arial, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 25px;
+  background: #171717;
+  color: #f2f2f2;
+}
+
+    h1 {
+  text-align: center;
+  color: #ef2b1d;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
+    .add-button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+
+  background: #ef2b1d;
+  color: black;
+
+  border: 3px solid #ef2b1d;
+  border-radius: 0;
+
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  transition: .15s;
+}
+
+    .add-button:hover {
+  background: #ff5a4d;
+}
+
+.add-pc-button{
+    background:#ffd400;
+    border-color:#ffd400;
+    color:black;
+}
+
+.add-pc-button:hover{
+    background:#ffe14d;
+}
+
+    .turn-panel {
+  border: 3px solid #ffd400;
+  background: #1b1b1b;
+  color: #f2f2f2;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+    .turn-title {
+  color: #ffd400;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+    .turn-name {
+  margin-top: 5px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+    .turn-meta {
+  margin-top: 4px;
+  color: #aaa;
+  font-size: 18px;
+}
+
+    .next-turn-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  background: #ffd400;
+  color: black;
+  border: 3px solid #ffd400;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+    .next-turn-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+    .pnj-list {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+    .pnj-item {
+  background: #1b1b1b;
+  border: 3px solid #ef2b1d;
+  margin-bottom: 18px;
+  padding: 16px;
+  transition: .15s;
+}
+
+  .pnj-item:hover{
+    box-shadow:0 0 18px rgba(239,43,29,.35);
+}
+
+    .pnj-item.active-turn {
+  box-shadow: 0 0 0 4px #ffd400, 0 0 24px rgba(255,212,0,.45);
+}
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+  background: #1b1b1b;
+  color: #f2f2f2;
+
+  margin: 8% auto;
+  padding: 24px;
+
+  width: 90%;
+  max-width: 460px;
+
+  border: 3px solid #ef2b1d;
+  border-radius: 0;
+
+  box-sizing: border-box;
+}
+
+    .modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  text-align: center;
+
+  color: #ef2b1d;
+
+  font-size: 34px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+}
+
+    .modal input[type="text"],
+.modal input[type="number"] {
+
+  background: #111;
+  color: white;
+  border: 2px solid #ef2b1d;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 20px;
+  padding: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px 0 16px;
+}
+
+.modal input::placeholder{
+    color:#999;
+}
+
+.choice-group h3{
+
+    color:#ef2b1d;
+    margin-top:20px;
+    margin-bottom:10px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.choice-group label{
+
+    display:block;
+    color:#eee;
+    margin:8px 0;
+    font-size:20px;
+    cursor:pointer;
+}
+
+    .modal button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .validate{
+    background:#ef2b1d;
+    color:black;
+    font-weight:bold;
+    font-family:inherit;
+    border:none;
+    border-radius:0;
+}
+
+    .cancel{
+    background:#333;
+    color:white;
+    font-weight:bold;
+    font-family:inherit;
+    border:2px solid #ef2b1d;
+    border-radius:0;
+}
+
+    .damage-btn{
+    background:#ef2b1d;
+    color:black;
+    border:none;
+    font-family:inherit;
+    font-weight:bold;
+    padding:7px 14px;
+    cursor:pointer;
+}
+
+    .edit-btn{
+    background:#333;
+    color:#ef2b1d;
+    border:2px solid #ef2b1d;
+    font-family:inherit;
+    font-weight:bold;
+    padding:7px 14px;
+    cursor:pointer;
+    margin-left:6px;
+}
+
+    .delete-btn{
+    background:none;
+    border:none;
+    color:#ef2b1d;
+    font-size:26px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+    .footer {
+  display: flow-root;
+  padding-top: 25px;
+}
+
+    .reset-button{
+    background:#ef2b1d;
+    color:black;
+    border:none;
+    border-radius:0;
+    font-family:inherit;
+    font-size:20px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+    .reset-button:hover{
+    background:#ff5a4d;
+}
+
+  </style>
+</head>
+
+<body>
+
+<h1>Cyberpunk - Suivi de combat</h1>
+
+<button class="add-button" id="addPnjBtn">
+  + Ajouter un PNJ
+</button>
+
+<button class="add-button add-pc-button" id="addPcBtn">
+  + Ajouter les PJs
+</button>
+
+<div class="turn-panel" id="turnPanel">
+  <div class="turn-title">Tour de jeu</div>
+  <div class="turn-name" id="turnName">Aucun personnage</div>
+  <div class="turn-meta" id="turnMeta">Ajoute des personnages pour démarrer le combat.</div>
+  <button class="next-turn-button" id="nextTurnBtn" disabled>
+    Personnage suivant
+  </button>
+</div>
+
+<div class="pnj-list" id="pnjList"></div>
+
+<!-- MODALE AJOUT PNJ -->
+<div class="modal" id="pnjModal">
+  <div class="modal-content">
+
+    <h2 id="pnjModalTitle">Ajouter un PNJ</h2>
+
+   <label class="field-label" for="pnjNom">Nom</label>
+    <input type="text" id="pnjNom">
+  <label class="field-label" for="pnjPS">Points de Santé</label>
+    <input type="number" id="pnjPS">
+  <label class="field-label" for="pnjArmureCorps">Armure de corps</label>
+    <input type="number" id="pnjArmureCorps">
+  <label class="field-label" for="pnjArmureTete">Armure de tête</label>
+    <input type="number" id="pnjArmureTete">
+  <label class="field-label" for="pnjREF">REF</label>
+    <input type="number" id="pnjREF">
+  <label class="field-label" for="pnjDEX">DEX</label>
+    <input type="number" id="pnjDEX">
+  <label class="field-label" for="pnjEsquive">Esquive</label>
+    <input type="number" id="pnjEsquive">
+  <label class="field-label" for="pnjInitiative">Initiative</label>
+    <input type="number" id="pnjInitiative">
+  <label for="pnjCount" style="display:block; margin-top:10px; margin-bottom:5px; color:#ef2b1d; font-weight:bold;">
+    Nombre de PNJ à créer
+</label>
+
+<input type="number" id="pnjCount" value="1" min="1">
+
+    <button class="validate" id="validatePnjBtn">Valider</button>
+    <button class="cancel" id="cancelPnjBtn">Annuler</button>
+
+  </div>
+</div>
+
+<!-- MODALE AJOUT PJ -->
+<div class="modal" id="pcModal">
+  <div class="modal-content">
+
+    <h2>Ajouter les PJs</h2>
+
+    <table style="width:100%;">
+      <tr>
+        <th style="text-align:left;">Nom</th>
+        <th style="width:120px;">Initiative</th>
+      </tr>
+
+      <tr><td><input type="text" id="pcNom1"></td><td><input type="number" id="pcInit1"></td></tr>
+      <tr><td><input type="text" id="pcNom2"></td><td><input type="number" id="pcInit2"></td></tr>
+      <tr><td><input type="text" id="pcNom3"></td><td><input type="number" id="pcInit3"></td></tr>
+      <tr><td><input type="text" id="pcNom4"></td><td><input type="number" id="pcInit4"></td></tr>
+      <tr><td><input type="text" id="pcNom5"></td><td><input type="number" id="pcInit5"></td></tr>
+      <tr><td><input type="text" id="pcNom6"></td><td><input type="number" id="pcInit6"></td></tr>
+    </table>
+
+    <button class="validate" id="validatePcBtn">Valider</button>
+    <button class="cancel" id="cancelPcBtn">Annuler</button>
+
+  </div>
+</div>
+
+<!-- MODALE DEGATS -->
+<div class="modal" id="damageModal">
+  <div class="modal-content">
+
+    <h2 id="damageTitle">Appliquer des dégâts</h2>
+
+    <input type="number" id="damageValue" placeholder="Nombre de dégâts">
+
+    <div class="choice-group">
+      <h3>Localisation</h3>
+      <label><input type="checkbox" id="hitHead"> Tête</label>
+      <label><input type="checkbox" id="hitBody"> Corps</label>
+    </div>
+
+    <div class="choice-group">
+      <h3>Armure</h3>
+      <label><input type="checkbox" id="ignoreHalf"> Ignorée de moitié <em>(armes de mêlée ou armes techniques chargées)</em></label>
+      <label><input type="checkbox" id="ignoreFull"> Ignorée entièrement <em>(Piratage, Etrangler, Lancer)</em></label>
+    </div>
+
+    <div class="choice-group">
+      <h3>Détérioration</h3>
+      <label><input type="checkbox" id="damageArmor" checked> Armure perforée</label>
+    </div>
+
+    <button class="validate" id="applyDamageBtn">Appliquer</button>
+    <button class="cancel" id="cancelDamageBtn">Annuler</button>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <button class="reset-button" id="resetBtn">
+    Réinitialiser
+  </button>
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
